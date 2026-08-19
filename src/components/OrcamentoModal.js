@@ -99,7 +99,6 @@ function OrcamentoModal({
       subtotal,
       transpasso: prod.medida ? transpasso : undefined // Salva transpasso localmente
     };
-    console.log('Item adicionado no modal:', novoItem); // Depuração
     if (editIndex !== null) {
       setItens(itens.map((item, idx) => idx === editIndex ? novoItem : item));
     } else {

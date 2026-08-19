@@ -36,7 +36,6 @@ async function salvarOrcamentoApi(orcamento, itens) {
   });
   if (!orcamentoRes.ok) {
     const errText = await orcamentoRes.text();
-    console.error('Erro ao salvar orçamento:', errText);
     throw new Error('Erro ao salvar orçamento');
   }
   const orcamentoSalvo = await orcamentoRes.json();
@@ -50,7 +49,6 @@ async function salvarOrcamentoApi(orcamento, itens) {
     }
   }
   if (!orcamentoId) {
-    console.error('Resposta completa do backend ao salvar orçamento:', orcamentoSalvo);
     throw new Error('Id do orçamento não encontrado');
   }
   for (const item of itens) {
@@ -70,7 +68,6 @@ async function salvarOrcamentoApi(orcamento, itens) {
     });
     if (!itemRes.ok) {
       const errText = await itemRes.text();
-      console.error('Erro ao salvar item do orçamento:', errText);
       throw new Error('Erro ao salvar item do orçamento');
     }
   }
@@ -309,7 +306,6 @@ function BudgetsPage() {
       subtotal: subtotalNum,
       transpasso: prod.medida ? transpasso : undefined // Sempre salva localmente
     };
-    console.log('Item adicionado:', item); // Depuração
     if (editIndex !== null) {
       const novos = [...itens];
       // Mantém o transpasso do item editado

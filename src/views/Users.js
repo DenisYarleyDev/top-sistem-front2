@@ -34,11 +34,6 @@ function Users() {
 
   const currentUser = getCurrentUser();
 
-  // Debug temporário
-  console.log('Usuário atual:', currentUser);
-  console.log('Tipo do usuário:', currentUser?.tipo);
-  console.log('Pode gerenciar usuários:', canManageUsers(currentUser?.tipo));
-
   useEffect(() => {
     loadUsers();
   }, []);

@@ -1,0 +1,3 @@
+analise o fluxo faturar e entenda como o valor é armazenado, voce nao mudara a api apenas o valor inserido ao faturar entende?
+
+deu erro ao colocar desativar um produto parou de listar os demais cai no offset com for infinito procurando mais produtos, corrigir

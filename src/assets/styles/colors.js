@@ -14,7 +14,7 @@ const colors = {
 
 // Configurações da API
 export const API_CONFIG = {
-  BASE_URL: 'https://back-top-alum-production.up.railway.app',
+  BASE_URL: 'https://back-top-alum2-production.up.railway.app',
   ENDPOINTS: {
     // Autenticação
     LOGIN: '/api/login',

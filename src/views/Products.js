@@ -21,6 +21,8 @@ function Products() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [filtroNome, setFiltroNome] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
   const [modalConfig, setModalConfig] = useState({
     isOpen: false,
     title: '',
@@ -33,18 +35,17 @@ function Products() {
   });
 
   useEffect(() => {
-    loadProdutos();
+    loadProdutos(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadProdutos = async () => {
-    setLoading(true);
+  const loadProdutos = async (isInitial = false) => {
+    if (isInitial) setLoading(true);
     const result = await getProdutos({ somenteAtivos: true });
     if (result.success) {
       setProdutos(result.data);
-    } else {
-      showModal('Erro', result.message, 'error', null, 'OK', '', false);
     }
-    setLoading(false);
+    if (isInitial) setLoading(false);
   };
 
   const handleSubmit = async (e) => {
@@ -99,8 +100,8 @@ function Products() {
       'Tem certeza que deseja deletar este produto?',
       'warning',
       async () => {
+        closeModal();
         try {
-          // Buscar todos os orçamentos
           const orcRes = await getOrcamentos();
           if (orcRes.success && Array.isArray(orcRes.data)) {
             for (const orc of orcRes.data) {
@@ -113,7 +114,6 @@ function Products() {
               }
             }
           }
-          // Se não está em uso, pode deletar
           const result = await deleteProduto(produtoId);
           if (result.success) {
             loadProdutos();
@@ -175,6 +175,14 @@ function Products() {
     if (!t) return produtos;
     return produtos.filter((p) => (p.nome || '').toLowerCase().includes(t));
   }, [produtos, filtroNome]);
+
+  const totalPages = Math.max(1, Math.ceil(produtosFiltrados.length / itemsPerPage));
+  const safePage = Math.min(currentPage, totalPages);
+  const produtosPaginados = produtosFiltrados.slice((safePage - 1) * itemsPerPage, safePage * itemsPerPage);
+
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [filtroNome]);
 
   if (loading) {
     return (
@@ -478,14 +486,14 @@ function Products() {
               </tr>
             </thead>
             <tbody>
-              {filtroNome.trim() && produtosFiltrados.length === 0 && (
+              {produtosFiltrados.length === 0 && (
                 <tr>
                   <td colSpan={5} style={{ padding: 'var(--spacing-xl)', textAlign: 'center', color: 'var(--text-light)' }}>
-                    Nenhum produto encontrado com este filtro.
+                    {filtroNome.trim() ? 'Nenhum produto encontrado com este filtro.' : 'Nenhum produto cadastrado.'}
                   </td>
                 </tr>
               )}
-              {produtosFiltrados.map((produto, index) => (
+              {produtosPaginados.map((produto, index) => (
                 <tr key={produto.id} style={{ 
                   borderBottom: '1px solid var(--border-light)',
                   background: index % 2 === 0 ? 'var(--surface)' : 'var(--background)'
@@ -566,6 +574,58 @@ function Products() {
             </tbody>
           </table>
         </div>
+        {totalPages > 1 && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 8,
+            padding: 'var(--spacing-md) var(--spacing-lg)',
+            borderTop: '1px solid var(--border)',
+            background: 'var(--border-light)',
+            flexWrap: 'wrap'
+          }}>
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={safePage <= 1}
+              style={{
+                padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border)',
+                background: safePage <= 1 ? 'var(--border-light)' : 'var(--surface)',
+                cursor: safePage <= 1 ? 'not-allowed' : 'pointer', fontSize: '0.8rem', color: 'var(--text)'
+              }}
+            >«</button>
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={safePage <= 1}
+              style={{
+                padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border)',
+                background: safePage <= 1 ? 'var(--border-light)' : 'var(--surface)',
+                cursor: safePage <= 1 ? 'not-allowed' : 'pointer', fontSize: '0.8rem', color: 'var(--text)'
+              }}
+            >‹</button>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text)', padding: '0 8px' }}>
+              Página {safePage} de {totalPages} ({produtosFiltrados.length} produto{produtosFiltrados.length !== 1 ? 's' : ''})
+            </span>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={safePage >= totalPages}
+              style={{
+                padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border)',
+                background: safePage >= totalPages ? 'var(--border-light)' : 'var(--surface)',
+                cursor: safePage >= totalPages ? 'not-allowed' : 'pointer', fontSize: '0.8rem', color: 'var(--text)'
+              }}
+            >›</button>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={safePage >= totalPages}
+              style={{
+                padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border)',
+                background: safePage >= totalPages ? 'var(--border-light)' : 'var(--surface)',
+                cursor: safePage >= totalPages ? 'not-allowed' : 'pointer', fontSize: '0.8rem', color: 'var(--text)'
+              }}
+            >»</button>
+          </div>
+        )}
       </div>
 
       {/* Modal */}

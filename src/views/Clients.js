@@ -160,8 +160,8 @@ function Clients() {
       'Tem certeza que deseja deletar este cliente?',
       'warning',
       async () => {
+        closeModal();
         try {
-          // Buscar todos os orçamentos
           const orcRes = await getOrcamentos();
           if (orcRes.success && Array.isArray(orcRes.data)) {
             if (orcRes.data.some(o => String(o.clienteFK) === String(clientId) || String(o.cliente_id) === String(clientId))) {
@@ -169,7 +169,6 @@ function Clients() {
               return;
             }
           }
-          // Se não está em uso, pode deletar
           const result = await deleteClient(clientId);
           if (result.success) {
             loadClients();

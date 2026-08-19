@@ -49,47 +49,17 @@ export const getProdutos = async (options = {}) => {
     const nome = (opts.nome || opts.search || '').trim();
     const somenteAtivos = Boolean(opts.somenteAtivos);
 
-    const all = [];
-    const seen = new Set();
-    let offset = 0;
+    const params = new URLSearchParams();
+    if (nome) params.set('nome', nome);
+    if (somenteAtivos) params.set('ativo', 'true');
 
-    while (true) {
-      const params = new URLSearchParams();
-      params.set('limit', String(PAGE_SIZE));
-      params.set('offset', String(offset));
-      if (nome) params.set('nome', nome);
-      if (somenteAtivos) params.set('ativo', 'true');
-
-      const result = await fetchProdutosOnce(params);
-      if (!result.ok) {
-        return { success: false, message: result.error };
-      }
-
-      const batch = result.list;
-      if (!batch.length) break;
-
-      const candidatos = batch.filter((p) => p && p.id != null && !seen.has(String(p.id)));
-      const novos = somenteAtivos ? candidatos.filter(isProdutoAtivo) : candidatos;
-
-      if (novos.length) {
-        for (const p of novos) seen.add(String(p.id));
-        all.push(...novos);
-      }
-
-      if (batch.length < PAGE_SIZE) break;
-
-      if (!novos.length) {
-        // Nenhum id novo nesta página = mesmos registros de novo (API ignorou offset/limit) → parar
-        if (!candidatos.length) break;
-        // Ids novos, mas todos inativos com somenteAtivos: avançar para a próxima página
-        offset += PAGE_SIZE;
-        if (offset > 1_000_000) break;
-        continue;
-      }
-
-      offset += PAGE_SIZE;
-      if (offset > 1_000_000) break;
+    const result = await fetchProdutosOnce(params);
+    if (!result.ok) {
+      return { success: false, message: result.error };
     }
+
+    const batch = result.list;
+    const all = somenteAtivos ? batch.filter((p) => p && isProdutoAtivo(p)) : batch.filter(Boolean);
 
     return { success: true, data: all };
   } catch (error) {

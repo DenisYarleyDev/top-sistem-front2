@@ -101,6 +101,7 @@ function Users() {
       'Tem certeza que deseja deletar este usuário?',
       'warning',
       async () => {
+        closeModal();
         const result = await deleteUser(userId);
         if (result.success) {
           loadUsers();

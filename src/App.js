@@ -111,7 +111,6 @@ function App() {
   React.useEffect(() => {
     const isReciboPublico = location.pathname.startsWith('/recibo-venda/');
 
-    // Checar expiração do login (8 horas) — não aplica em link público de recibo
     if (!isReciboPublico) {
       const loginTime = Number(localStorage.getItem('loginTime'));
       if (loginTime && Date.now() - loginTime > 8 * 60 * 60 * 1000) {
@@ -124,23 +123,33 @@ function App() {
     }
 
     if (isReciboPublico) return;
+    if (location.pathname === '/login') return;
 
+    let cancelled = false;
     async function fetchLembretesHoje() {
-      const resL = await getAlertas();
-      const resO = await getOrcamentos();
-      const resC = await getClients();
-      setOrcamentos(resO.success ? resO.data : []);
-      setClientes(resC.success ? resC.data : []);
-      if (resL.success) {
-        const hojeStr = new Date().toISOString().slice(0, 10);
-        const lembretes = resL.data.filter(l => l.dataAlert && l.dataAlert.slice(0, 10) === hojeStr);
-        setLembretesHoje(lembretes);
-        setShowToast(lembretes.length > 0);
-        setToastIndex(0);
+      try {
+        const [resL, resO, resC] = await Promise.all([
+          getAlertas(),
+          getOrcamentos(),
+          getClients(),
+        ]);
+        if (cancelled) return;
+        setOrcamentos(resO.success ? resO.data : []);
+        setClientes(resC.success ? resC.data : []);
+        if (resL.success) {
+          const hojeStr = new Date().toISOString().slice(0, 10);
+          const lembretes = resL.data.filter(l => l.dataAlert && l.dataAlert.slice(0, 10) === hojeStr);
+          setLembretesHoje(lembretes);
+          setShowToast(lembretes.length > 0);
+          setToastIndex(0);
+        }
+      } catch (e) {
+        // silently ignore fetch errors for toast
       }
     }
     fetchLembretesHoje();
-  }, [location.pathname]); // Atualiza toast e checa login ao mudar de rota
+    return () => { cancelled = true; };
+  }, [location.pathname]);
 
   function getClienteNome(orcamentoFK) {
     const orc = orcamentos.find(o => String(o.id) === String(orcamentoFK));

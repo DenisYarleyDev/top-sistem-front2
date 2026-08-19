@@ -44,11 +44,12 @@ const Modal = ({
     }
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (onConfirm) {
-      onConfirm();
+      await onConfirm();
+    } else {
+      onClose();
     }
-    onClose();
   };
 
   const handleCancel = () => {

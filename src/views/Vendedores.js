@@ -86,13 +86,12 @@ function Vendedores() {
       'Tem certeza que deseja deletar este vendedor? Todos os orçamentos relacionados também serão excluídos.',
       'warning',
       async () => {
+        closeModal();
         try {
-          // Buscar todos os orçamentos relacionados ao vendedor
           const orcRes = await getOrcamentos();
           if (orcRes.success && Array.isArray(orcRes.data)) {
             const orcsDoVendedor = orcRes.data.filter(o => String(o.vendedorFK) === String(vendedorId) || String(o.vendedor_id) === String(vendedorId));
             for (const orc of orcsDoVendedor) {
-              // Deletar todos os itens do orçamento antes de deletar o orçamento
               const itensRes = await getItensOrcamento(orc.id);
               if (itensRes.success && Array.isArray(itensRes.data)) {
                 for (const item of itensRes.data) {
@@ -102,7 +101,6 @@ function Vendedores() {
               await deleteOrcamento(orc.id);
             }
           }
-          // Agora deleta o vendedor
           const result = await deleteVendedor(vendedorId);
           if (result.success) {
             loadVendedores();

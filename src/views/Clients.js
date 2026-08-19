@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { getClients, createClient, updateClient, deleteClient } from '../controllers/clientsController';
-import { getOrcamentos, deleteOrcamento } from '../controllers/orcamentosController';
+import { getOrcamentos } from '../controllers/orcamentosController';
 import Modal from '../components/Modal';
 
 function Clients() {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(''); // eslint-disable-line no-unused-vars
   const [showForm, setShowForm] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [formData, setFormData] = useState({

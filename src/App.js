@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 // Importações das views (ainda serão criadas)
 import Dashboard from './views/Dashboard';
 import Users from './views/Users';

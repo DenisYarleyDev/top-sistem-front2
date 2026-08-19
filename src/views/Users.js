@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getUsers, createUser, updateUser, deleteUser } from '../controllers/usersController';
-import { translateUserType, canManageUsers, canDeleteRecords } from '../utils/userUtils';
+import { translateUserType, canManageUsers } from '../utils/userUtils';
 import { getCurrentUser } from '../controllers/authController';
 import Modal from '../components/Modal';
 
@@ -11,7 +11,7 @@ function capitalizeWords(str) {
 function Users() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(''); // eslint-disable-line no-unused-vars
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
